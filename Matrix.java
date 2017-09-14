@@ -67,15 +67,13 @@ public class Matrix {
     //region Operations
     public static Matrix addMatrix(Matrix A, Matrix B) throws SumExceptiom{
         boolean canAdd = (A.col == B.col) && (A.row == B.row) ? true : false;
-        if (!canAdd) { throw new SumExceptiom("Невозможное суммирование"); }
+        if (!canAdd) throw new SumExceptiom("Невозможное суммирование");
         else{
             Matrix X = new Matrix(A.row, A.col);
             if (A.round > B.round) { X.round = A.round; } else { X.round = B.round; }
-            for (int i = 0; i < A.row; i++){
-                for (int j = 0; j < A.col; j++){
+            for (int i = 0; i < A.row; i++)
+                for (int j = 0; j < A.col; j++)
                     X.matr[i][j] = A.matr[i][j] + B.matr[i][j];
-                }
-            }
             return X;
         }
     }
@@ -86,11 +84,9 @@ public class Matrix {
         else{
             Matrix X = new Matrix(A.row, A.col);
             if (A.round > B.round) { X.round = A.round; } else { X.round = B.round; }
-            for (int i = 0; i < A.row; i++){
-                for (int j = 0; j < A.col; j++){
+            for (int i = 0; i < A.row; i++)
+                for (int j = 0; j < A.col; j++)
                     X.matr[i][j] = A.matr[i][j] - B.matr[i][j];
-                }
-            }
             return X;
         }
     }
@@ -98,11 +94,9 @@ public class Matrix {
     public static Matrix multiblyByNumber(Matrix M, double n){
         Matrix X = new Matrix(M.row, M.col);
         X.round = M.round;
-        for (int i = 0; i < M.row; i++){
-            for (int j = 0; j < M.col; j++){
+        for (int i = 0; i < M.row; i++)
+            for (int j = 0; j < M.col; j++)
                 X.matr[i][j] = M.matr[i][j] * n;
-            }
-        }
         return X;
     }
 
@@ -112,13 +106,10 @@ public class Matrix {
         else{
             Matrix X = new Matrix(A.row, B.col);
             if (A.round > B.round) { X.round = A.round; } else { X.round = B.round; }
-            for (int i = 0; i < A.row; i++){
-                for (int j = 0; j < B.col; j++){
-                    for (int k = 0; k < B.row; k++){
+            for (int i = 0; i < A.row; i++)
+                for (int j = 0; j < B.col; j++)
+                    for (int k = 0; k < B.row; k++)
                         X.matr[i][j] = X.matr[i][j] + A.matr[i][k] * B.matr[k][j];
-                    }
-                }
-            }
             return X;
         }
     }
@@ -126,11 +117,9 @@ public class Matrix {
     public Matrix transpose(){
         Matrix X = new Matrix(col, row);
         X.round = round;
-        for (int i = 0; i < row; i++){
-            for (int j = 0; j < col; j++){
+        for (int i = 0; i < row; i++)
+            for (int j = 0; j < col; j++)
                 X.matr[j][i] = matr[i][j];
-            }
-        }
         return X;
     }
 
@@ -164,11 +153,9 @@ public class Matrix {
     }
 
     private void rounding(){
-        for(int i=0; i<row; i++){
-            for(int j=0; j<col;j++){
+        for(int i=0; i<row; i++)
+            for(int j=0; j<col;j++)
                 matr[i][j] = round(matr[i][j],round);
-            }
-        }
     }
 
     private double round(double number, int scale) {
@@ -180,9 +167,7 @@ public class Matrix {
     }
 
     public int rang() throws Exception {
-        if(zero()){
-            return 0;
-        }
+        if(zero()) return 0;
         Matrix X = getStepMatrix();
         X.excludeZeroColRow();
         return X.rows();
@@ -191,30 +176,27 @@ public class Matrix {
     //endregion
 
     //region Determinant
-    public double determinant() throws IncompabilityOfColumnsAndRows{
-        if (col != row) { throw new IncompabilityOfColumnsAndRows("Матрица не квадратная"); }
-        else { return determinant(this); }
-    }
 
     public double determinant(boolean write) throws IncompabilityOfColumnsAndRows{
-        if (col != row) { throw new IncompabilityOfColumnsAndRows("Матрица не квадратная"); }
-        else { return determinant(this, true); }
+        if (col != row)
+            throw new IncompabilityOfColumnsAndRows("Матрица не квадратная");
+        else
+            return determinant(this, write);
     }
 
     private double determinant(Matrix X){
         double res = 0;
-        if ((X.col == 2) && (X.row == 2)){
+        if ((X.col == 2) && (X.row == 2))
             return X.matr[0][0] * X.matr[1][1] - X.matr[0][1] * X.matr[1][0];
-        }
-        else if ((X.col == 1) && (X.row == 1)) { return X.matr[0][0]; }
+        else if ((X.col == 1) && (X.row == 1))
+            return X.matr[0][0];
         else{
             for (int j = 0; j < X.col; j++){
                 Matrix J;
-                if(!zero()){
+                if(!zero())
                     J = X.minor(0, j);
-                }else{
+                else
                     J = new Matrix(1,1);
-                }
                 double minor = determinant(J);
                 res = res + Math.pow(-1, j + 2) * X.matr[0][j] * minor;
             }
@@ -225,22 +207,24 @@ public class Matrix {
     private double determinant(Matrix X, boolean write){
         double res = 0;
         String dot = String.valueOf((char)183);
-        if (X.col == 3){
-            X.message = new StringBuilder(nf.format(matr[0][0]) + dot + nf.format(matr[1][1]) + dot + nf.format(matr[2][2]) + " + "
-                    + nf.format(matr[0][1]) + dot + nf.format(matr[1][2]) + dot + nf.format(matr[2][0]) + " + "
-                    + nf.format(matr[1][0]) + dot + nf.format(matr[2][1]) + dot + nf.format(matr[0][2]) + " - "
-                    + nf.format(matr[0][2]) + dot + nf.format(matr[1][1]) + dot + nf.format(matr[2][0]) + " - "
-                    + nf.format(matr[1][0]) + dot + nf.format(matr[0][1]) + dot + nf.format(matr[2][2]) + " - "
-                    + nf.format(matr[2][1]) + dot + nf.format(matr[1][2]) + dot + nf.format(matr[0][0]));
+        if(write){
+            if (X.col == 3){
+                X.message = new StringBuilder(nf.format(matr[0][0]) + dot + nf.format(matr[1][1]) + dot + nf.format(matr[2][2]) + " + "
+                        + nf.format(matr[0][1]) + dot + nf.format(matr[1][2]) + dot + nf.format(matr[2][0]) + " + "
+                        + nf.format(matr[1][0]) + dot + nf.format(matr[2][1]) + dot + nf.format(matr[0][2]) + " - "
+                        + nf.format(matr[0][2]) + dot + nf.format(matr[1][1]) + dot + nf.format(matr[2][0]) + " - "
+                        + nf.format(matr[1][0]) + dot + nf.format(matr[0][1]) + dot + nf.format(matr[2][2]) + " - "
+                        + nf.format(matr[2][1]) + dot + nf.format(matr[1][2]) + dot + nf.format(matr[0][0]));
+            }
+            if (X.col == 2){
+                X.message = new StringBuilder(nf.format(matr[0][0]) + dot + nf.format(matr[1][1]) +
+                        " - " + nf.format(matr[0][1]) + dot + nf.format(matr[1][0]));
+            }
         }
-        if (X.col == 2){
-            X.message = new StringBuilder(nf.format(matr[0][0]) + dot + nf.format(matr[1][1]) +
-                    " - " + nf.format(matr[0][1]) + dot + nf.format(matr[1][0]));
-        }
-        if ((X.col == 2) && (X.row == 2)){
+        if ((X.col == 2) && (X.row == 2))
             return X.matr[0][0] * X.matr[1][1] - X.matr[0][1] * X.matr[1][0];
-        }
-        else if ((X.col == 1) && (X.row == 1)) { return X.matr[0][0]; }
+        else if ((X.col == 1) && (X.row == 1))
+            return X.matr[0][0];
         else{
             for (int j = 0; j < X.col; j++){
                 Matrix J = X.minor(0, j);
@@ -250,13 +234,14 @@ public class Matrix {
             return res;
         }
     }
-
     //endregion
 
     //region Rows operations
     public void swapRows(int r1, int r2) throws IncompabilityOfColumnsAndRows{
-        if ((row < r1) | (row < r2) | (r1 < 0) | (r2 < 0)) { throw new IncompabilityOfColumnsAndRows("Invalid index"); }
-        if (r1 == r2) { return; }
+        if ((row < r1) | (row < r2) | (r1 < 0) | (r2 < 0))
+            throw new IncompabilityOfColumnsAndRows("Invalid index");
+        if (r1 == r2)
+            return;
         else{
             double[][] Matr;
             Matr = copy(this);
@@ -271,58 +256,53 @@ public class Matrix {
     }
 
     public void addRowMultiplyedByNumber(int row1, double n, int row2){
-        for (int j = 0; j < col; j++){
+        for (int j = 0; j < col; j++)
             matr[row2][j] = matr[row2][j] + matr[row1][j] * n;
-        }
     }
 
     public void multiplyRowByNumber(int r, double n) throws IncompabilityOfColumnsAndRows{
-        if ((row < r) | (r < 0)) { throw new IncompabilityOfColumnsAndRows("Invalid index"); }
-        else{
-            for (int j = 0; j < col; j++){
+        if ((row < r) | (r < 0))
+            throw new IncompabilityOfColumnsAndRows("Invalid index");
+        else
+            for (int j = 0; j < col; j++)
                 matr[r][j] = matr[r][j] * n;
-            }
-        }
     }
 
     public void divRowByNumber(int r, double n) throws IncompabilityOfColumnsAndRows{
-        if ((row < r) | (r < 0)) { throw new IncompabilityOfColumnsAndRows("Invalid index"); }
-        else{
-            for (int j = 0; j < col; j++){
+        if ((row < r) | (r < 0))
+            throw new IncompabilityOfColumnsAndRows("Invalid index");
+        else
+            for (int j = 0; j < col; j++)
                 matr[r][j] = (matr[r][j]) * (1 / n);
-            }
-        }
     }
 
     public void addNumberToRow(int r, double n) throws IncompabilityOfColumnsAndRows{
-        if ((row < r) | (r < 0)) { throw new IncompabilityOfColumnsAndRows("Invalid index"); }
-        else{
-            for (int j = 0; j < col; j++){
+        if ((row < r) | (r < 0)
+                )throw new IncompabilityOfColumnsAndRows("Invalid index");
+        else
+            for (int j = 0; j < col; j++)
                 matr[r][j] = matr[r][j] + n;
-            }
-        }
     }
 
     public void subNumberFromRow(int r, double n) throws IncompabilityOfColumnsAndRows{
-        if ((row < r) | (r < 0)) { throw new IncompabilityOfColumnsAndRows("Invalid index"); }
-        else{
-            for (int j = 0; j < col; j++){
+        if ((row < r) | (r < 0))
+            throw new IncompabilityOfColumnsAndRows("Invalid index");
+        else
+            for (int j = 0; j < col; j++)
                 matr[r][j] = matr[r][j] - n;
-            }
-        }
     }
 
     public void deleteRow(int r) throws IncompabilityOfColumnsAndRows{
-        if ((r > row) | (r < 0)) { throw new IncompabilityOfColumnsAndRows("Row number is negative or more then number of rows in matrix"); }
+        if ((r > row) | (r < 0))
+            throw new IncompabilityOfColumnsAndRows("Row number is negative or more then number of rows in matrix");
         Matrix X = new Matrix(row - 1, col);
         boolean flag = false;
         for (int i = 0; i < row; i++){
             int z = i;
             if (i == r) { flag = true; continue; }
             if (flag) { z = z - 1; }
-            for (int j = 0; j < col; j++){
+            for (int j = 0; j < col; j++)
                 X.matr[z][j] = matr[i][j];
-            }
         }
         matr = X.matr;
         col = X.col;
@@ -346,28 +326,34 @@ public class Matrix {
     }
 
     public void excludeZeroRow() throws Exception{
-        if (zero()) { matr = new double[1][1]; return; }
-        List<Integer> RowToDelete = new ArrayList<Integer>();
-        Matrix V = new Matrix(col, 1);
-        for (int i = 0; i < V.row; i++){
-            V.matr[i][0] = 1;
+        if (zero()) {
+            matr = new double[1][1];
+            return;
         }
-        Matrix zRow = multiplyByMatrix(this,V);
-        for (int i = 0; i < zRow.row; i++){
-            if (zRow.matr[i][0] == 0) { RowToDelete.add(i); }
-        }
-        deleteRows(RowToDelete);
-    }
-
-    public List<Integer> excludeZeroRow2() throws Exception{
-        if (zero()) { matr = new double[1][1]; return new ArrayList<>(); }
         List<Integer> RowToDelete = new ArrayList<Integer>();
         Matrix V = new Matrix(col, 1);
         for (int i = 0; i < V.row; i++)
             V.matr[i][0] = 1;
         Matrix zRow = multiplyByMatrix(this,V);
         for (int i = 0; i < zRow.row; i++)
-            if (zRow.matr[i][0] == 0) { RowToDelete.add(i); }
+            if (zRow.matr[i][0] == 0)
+                RowToDelete.add(i);
+        deleteRows(RowToDelete);
+    }
+
+    public List<Integer> excludeZeroRow2() throws Exception{
+        if (zero()) {
+            matr = new double[1][1];
+            return new ArrayList<>();
+        }
+        List<Integer> RowToDelete = new ArrayList<Integer>();
+        Matrix V = new Matrix(col, 1);
+        for (int i = 0; i < V.row; i++)
+            V.matr[i][0] = 1;
+        Matrix zRow = multiplyByMatrix(this,V);
+        for (int i = 0; i < zRow.row; i++)
+            if (zRow.matr[i][0] == 0)
+                RowToDelete.add(i);
         deleteRows(RowToDelete);
         return RowToDelete;
     }
@@ -377,7 +363,8 @@ public class Matrix {
     //region Column operations
 
     public void swapColumns(int col1, int col2) throws IncompabilityOfColumnsAndRows{
-        if ((col < col1) | (col < col2) | (col1 < 0) | (col2 < 0) | (col1 == col2)) { throw new IncompabilityOfColumnsAndRows("Invalid index"); }
+        if ((col < col1) | (col < col2) | (col1 < 0) | (col2 < 0) | (col1 == col2))
+            throw new IncompabilityOfColumnsAndRows("Invalid index");
         else{
             for (int i = 0; i < row; i++){
                 double x1 = matr[i][col1];
@@ -389,52 +376,51 @@ public class Matrix {
     }
 
     public void multiplyColByNumber(int col, double n) throws MultException{
-        if ((this.col < col) | (col < 0)) { throw new MultException("Invalid multiplication"); }
-        else{
-            for (int i = 0; i < row; i++){
+        if ((this.col < col) | (col < 0))
+            throw new MultException("Invalid multiplication");
+        else
+            for (int i = 0; i < row; i++)
                 matr[i][col] = matr[i][col] * n;
-            }
-        }
     }
 
     public void divColByNumber(int col, double n) throws IncompabilityOfColumnsAndRows{
-        if ((this.col < col) | (col < 0)) { throw new IncompabilityOfColumnsAndRows("Invalid index"); }
-        else{
-            for (int i = 0; i < row; i++){
+        if ((this.col < col) | (col < 0))
+            throw new IncompabilityOfColumnsAndRows("Invalid index");
+        else
+            for (int i = 0; i < row; i++)
                 matr[i][col] = matr[i][col] / n;
-            }
-        }
     }
 
     public void addNumberToCol(int col, double n) throws IncompabilityOfColumnsAndRows{
-        if ((this.col < col) | (col < 0)) { throw new IncompabilityOfColumnsAndRows("Invalid index"); }
-        else{
-            for (int i = 0; i < row; i++){
+        if ((this.col < col) | (col < 0))
+            throw new IncompabilityOfColumnsAndRows("Invalid index");
+        else
+            for (int i = 0; i < row; i++)
                 matr[i][col] = matr[i][col] + n;
-            }
-        }
     }
 
     public void subNumberFromCol(int col, double n) throws IncompabilityOfColumnsAndRows{
-        if ((this.col < col) | (col < 0)) { throw new IncompabilityOfColumnsAndRows("Invalid index"); }
-        else{
-            for (int i = 0; i < row; i++){
+        if ((this.col < col) | (col < 0))
+            throw new IncompabilityOfColumnsAndRows("Invalid index");
+        else
+            for (int i = 0; i < row; i++)
                 matr[i][col] = matr[i][col] - n;
-            }
-        }
     }
 
     public void deleteCol(int col) throws IncompabilityOfColumnsAndRows{
-        if ((col > this.col) | (col < 0)) { throw new IncompabilityOfColumnsAndRows("Col number is negative or more then number of columns in matrix"); }
+        if ((col > this.col) | (col < 0))
+            throw new IncompabilityOfColumnsAndRows("Col number is negative or more then number of columns in matrix");
         Matrix X = new Matrix(this.row, this.col - 1);
         boolean flag = false;
         for (int j = 0; j < this.col; j++){
             int z = j;
-            if (j == col) { flag = true; continue; }
-            if (flag) { z = z - 1; }
-            for (int i = 0; i < this.row; i++){
-                X.matr[i][z] = this.matr[i][j];
+            if (j == col) {
+                flag = true;
+                continue;
             }
+            if (flag) { z = z - 1; }
+            for (int i = 0; i < this.row; i++)
+                X.matr[i][z] = this.matr[i][j];
         }
         this.matr = X.matr;
         this.col = X.col;
@@ -442,33 +428,33 @@ public class Matrix {
     }
 
     public void addColMultiplyedByNumber(int col1, double n, int col2){
-        for (int i = 0; i < row; i++){
+        for (int i = 0; i < row; i++)
             matr[i][col2] = matr[i][col2] + matr[i][col1] * n;
-        }
     }
 
     public void excludeZeroCol() throws Exception{
-        if (zero()) { matr = new double[1][1]; return; }
+        if (zero()) {
+            matr = new double[1][1];
+            return;
+        }
         List<Integer> ColToDelete = new ArrayList<Integer>();
         Matrix Trans = this.transpose();
         Matrix V = new Matrix(Trans.col, 1);
-        for (int i = 0; i < V.row; i++){
+        for (int i = 0; i < V.row; i++)
             V.matr[i][0] = 1;
-        }
         Matrix zCol = multiplyByMatrix(Trans,V);
-        for (int i = 0; i < zCol.row; i++){
-            if (zCol.matr[i][0] == 0) { ColToDelete.add(i); }
-        }
-        for (int j : ColToDelete){
+        for (int i = 0; i < zCol.row; i++)
+            if (zCol.matr[i][0] == 0)
+                ColToDelete.add(i);
+        for (int j : ColToDelete)
             this.deleteCol(j);
-        }
     }
 
     //endregion
 
     //Power
     public Matrix power(int n) throws Exception{
-        if(col!=row)throw new Exception("Матрица не квадратная");
+        if(col!=row) throw new Exception("Матрица не квадратная");
         if(n==0){
             Matrix E = new Matrix(eMatrix(row,col));
             //Send message here
@@ -710,8 +696,9 @@ public class Matrix {
 
     public Matrix inverseByGaussGordan() throws Exception{
         double det = 0;
-        if (col != row){ throw new IncompabilityOfColumnsAndRows("Матрица не является квадратной");}
-        det = determinant();
+        if (col != row)
+            throw new IncompabilityOfColumnsAndRows("Матрица не является квадратной");
+        det = determinant(false);
         if (det == 0){ throw new IncompabilityOfColumnsAndRows("Матрица вырожденная - определитель равен 0");}
         else{
             int c = col;
@@ -750,26 +737,27 @@ public class Matrix {
 
     //region Help methods
     public void excludeZeroColRow() throws Exception{
-        if (zero()) { matr = new double[1][1]; return; }
+        if (zero()) {
+            matr = new double[1][1];
+            return;
+        }
         List<Integer> RowToDelete = new ArrayList<Integer>();
         List<Integer> ColToDelete = new ArrayList<Integer>();
         Matrix V = new Matrix(col, 1);
-        for (int i = 0; i < V.row; i++){
+        for (int i = 0; i < V.row; i++)
             V.matr[i][0] = 1;
-        }
         Matrix zRow = multiplyByMatrix(this,V);
-        for (int i = 0; i < zRow.row; i++){
-            if (zRow.matr[i][0] == 0) { RowToDelete.add(i); }
-        }
+        for (int i = 0; i < zRow.row; i++)
+            if (zRow.matr[i][0] == 0)
+                RowToDelete.add(i);
         Matrix Trans = this.transpose();
         V = new Matrix(Trans.col, 1);
-        for (int i = 0; i < V.row; i++){
+        for (int i = 0; i < V.row; i++)
             V.matr[i][0] = 1;
-        }
         Matrix zCol = multiplyByMatrix(Trans,V);
-        for (int i = 0; i < zCol.row; i++){
-            if (zCol.matr[i][0] == 0) { ColToDelete.add(i); }
-        }
+        for (int i = 0; i < zCol.row; i++)
+            if (zCol.matr[i][0] == 0)
+                ColToDelete.add(i);
         deleteColArray(ColToDelete);
         deleteRowArray(RowToDelete);
     }
@@ -816,8 +804,10 @@ public class Matrix {
     private double[] findLeadElem(int col, int sRow){
         double[] res = new double[2];
         //res[0] - row, res[1] - elem
-        for (int i = sRow; i < row; i++){
-            if (matr[i][col] != 0) { res[0] = i; res[1] = matr[i][sRow]; return res; }
+        for (int i = sRow; i < row; i++)
+            if (matr[i][col] != 0) {
+            res[0] = i; res[1] = matr[i][sRow];
+            return res;
         }
         res[0] = 0;
         res[1] = matr[0][0];
