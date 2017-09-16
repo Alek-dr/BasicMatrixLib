@@ -1,4 +1,4 @@
-package matrix;
+package MatrixLib;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -30,11 +30,11 @@ public class Matrix {
         return matr;
     }
 
-    private double[][] matr;
+    protected double[][] matr;
 
-    private int col;
+    protected int col;
 
-    private int row;
+    protected int row;
 
     public StringBuilder message;
 
@@ -50,12 +50,10 @@ public class Matrix {
 
     public int round;
 
-    private boolean zero(){
+    public boolean isZero(){
         for (double[] z : matr)
-        {
             for(double d: z)
-                if (d != 0) { return false; }
-        }
+                if (d != 0) return false;
         return true;
     }
 
@@ -167,9 +165,9 @@ public class Matrix {
     }
 
     public int rang() throws Exception {
-        if(zero()) return 0;
-        Matrix X = getStepMatrix();
-        X.excludeZeroColRow();
+        if(isZero()) return 0;
+        Matrix X = Algorithms.Gauss(this);
+        X.excludeisZeroColRow();
         return X.rows();
     }
 
@@ -193,7 +191,7 @@ public class Matrix {
         else{
             for (int j = 0; j < X.col; j++){
                 Matrix J;
-                if(!zero())
+                if(!isZero())
                     J = X.minor(0, j);
                 else
                     J = new Matrix(1,1);
@@ -294,7 +292,7 @@ public class Matrix {
 
     public void deleteRow(int r) throws IncompabilityOfColumnsAndRows{
         if ((r > row) | (r < 0))
-            throw new IncompabilityOfColumnsAndRows("Row number is negative or more then number of rows in matrix");
+            throw new IncompabilityOfColumnsAndRows("Row number is negative or more then number of rows in MatrixLib.matrix");
         Matrix X = new Matrix(row - 1, col);
         boolean flag = false;
         for (int i = 0; i < row; i++){
@@ -310,7 +308,7 @@ public class Matrix {
     }
 
     private void deleteRows(List<Integer> dRows) throws IncompabilityOfColumnsAndRows{
-        if (dRows.size() > row) throw new IncompabilityOfColumnsAndRows("Row number is negative or more then number of rows in matrix");
+        if (dRows.size() > row) throw new IncompabilityOfColumnsAndRows("Row number is negative or more then number of rows in MatrixLib.matrix");
         Matrix X = new Matrix(row - dRows.size(), col);
         int z = 0;
         int n = 0;
@@ -325,8 +323,8 @@ public class Matrix {
         row = X.row;
     }
 
-    public void excludeZeroRow() throws Exception{
-        if (zero()) {
+    protected void excludeisZeroRow() throws Exception{
+        if (isZero()) {
             matr = new double[1][1];
             return;
         }
@@ -341,8 +339,8 @@ public class Matrix {
         deleteRows(RowToDelete);
     }
 
-    public List<Integer> excludeZeroRow2() throws Exception{
-        if (zero()) {
+    protected List<Integer> excludeZeroRow2() throws Exception{
+        if (isZero()) {
             matr = new double[1][1];
             return new ArrayList<>();
         }
@@ -409,7 +407,7 @@ public class Matrix {
 
     public void deleteCol(int col) throws IncompabilityOfColumnsAndRows{
         if ((col > this.col) | (col < 0))
-            throw new IncompabilityOfColumnsAndRows("Col number is negative or more then number of columns in matrix");
+            throw new IncompabilityOfColumnsAndRows("Col number is negative or more then number of columns in MatrixLib.matrix");
         Matrix X = new Matrix(this.row, this.col - 1);
         boolean flag = false;
         for (int j = 0; j < this.col; j++){
@@ -432,8 +430,8 @@ public class Matrix {
             matr[i][col2] = matr[i][col2] + matr[i][col1] * n;
     }
 
-    public void excludeZeroCol() throws Exception{
-        if (zero()) {
+    public void excludeisZeroCol() throws Exception{
+        if (isZero()) {
             matr = new double[1][1];
             return;
         }
@@ -460,7 +458,7 @@ public class Matrix {
             //Send message here
             return E;
         }
-        if(zero()){
+        if(isZero()){
             this.message = new StringBuilder("Нулевая матрица");
             //Send message here
             return null;
@@ -496,113 +494,20 @@ public class Matrix {
 
     //region Row Echelon Form
 
-    public Matrix getStepMatrix() throws Exception{
-        if (zero()) throw new Exception("Нулевая матрица");
-        if ((col == 1) & (row == 1)) {
-            Matrix Res = new Matrix(row, col);
-            Res.matr[0][0] = 1;
-            return Res;
-        }
-        int row = 0;
-        int strI = 0;
-        int strZ = 0;
-        double leadElement = 0;
-        double[] RowElem;
-        double divBy = 0;
-        Matrix X = new Matrix(this.row, this.col);
-        X.name = this.name;
-        X.matr = copy(this);
-        //Send message here
-        List<Integer> delRows =  X.excludeZeroRow2();
-        if(delRows.size()>0){
-            X.message = new StringBuilder("Исключим строки:");
-            for(int i: delRows){
-                strI = i+1;
-                X.message.append(" " + strI);
-            }
-            //Send message here
-        }
-        if (!(X.col >= X.row)) {
-            for (int z = 0; z < col; z++) {
-                strZ = z + 1;
-                RowElem = X.findLeadElem(z, z);
-                leadElement = RowElem[1];
-                row = (int) RowElem[0];
-                strI = row+1;
-                if (leadElement == 0)
-                    continue;
-                if (row != 0) {
-                    X.swapRows(z, row);
-                    if(z != 0){
-                        X.message = new StringBuilder("Поменяли местами строки " + strZ + " и " + strI);
-                        //Send message here
-                    }
-                }
-                if (leadElement != 1) {
-                    X.divRowByNumber(z, leadElement);
-                    X.message  = new StringBuilder("Поделили строку " + strZ + " на " + nf.format(leadElement));
-                    //Send message here
-                }
-                for (int i = z + 1; i < row; i++) {
-                    if (X.matr[i][z] == 0)
-                        continue;
-                    strI = i + 1;
-                    divBy = -X.matr[i][z];
-                    X.addRowMultiplyedByNumber(z, -X.matr[i][z], i);
-                    X.message = new StringBuilder("Добавили к строке " + strI + " строку " + strZ + ", умноженную на " + nf.format(divBy));
-                    //Send message here
-                }
-            }
-            //Send message here
-            return X;
-        } else {
-            for (int z = 0; z < X.row; z++) {
-                strZ = z + 1;
-                RowElem = X.findLeadElem(z, z);
-                leadElement = RowElem[1];
-                row = (int) RowElem[0];
-                strI = row+1;
-                if (leadElement == 0)
-                    continue;
-                if (row != 0) {
-                    X.swapRows(z, row);
-                    if(z!=row){
-                        X.message = new StringBuilder("Поменяли местами строки "+strZ+" и " + strI);
-                        //Send message here
-                    }
-                }
-                if (leadElement != 1) {
-                    X.divRowByNumber(z, leadElement);
-                    X.message = new StringBuilder("Поделили строку " + strZ + " на " + nf.format(leadElement));
-                    //Send message here
-                }
-                for (int i = z + 1; i < X.row; i++) {
-                    if (X.matr[i][z] == 0)
-                    continue;
-                    strI = i + 1;
-                    divBy = -X.matr[i][z];
-                    X.addRowMultiplyedByNumber(z, -X.matr[i][z], i);
-                    X.message = new StringBuilder("Добавили к строке " + strI + " строку " + strZ + ", умноженную на " + nf.format(divBy));
-                    //Send message here
-                }
-            }
-            //Send message here
-            return X;
-        }
-    }
+    
 
     //endregion
 
     // region Gauss-Jordan
 
     public Matrix gaussJordan() throws Exception{
-        if (zero()) throw new Exception("Нулевая матрица");
+        if (isZero()) throw new Exception("Нулевая матрица");
         if ((col == 1) | (row == 1)){
             Matrix Res = new Matrix(row, col);
             Res.matr[0][0] = 1;
             return Res;
         }
-        excludeZeroRow();
+        excludeisZeroRow();
         int row = 0;
         double divBy = 0;
         double leadElement = 0;
@@ -736,8 +641,8 @@ public class Matrix {
     //endregion
 
     //region Help methods
-    public void excludeZeroColRow() throws Exception{
-        if (zero()) {
+    public void excludeisZeroColRow() throws Exception{
+        if (isZero()) {
             matr = new double[1][1];
             return;
         }
@@ -801,7 +706,7 @@ public class Matrix {
         row = X.row;
     }
 
-    private double[] findLeadElem(int col, int sRow){
+    protected double[] findLeadElem(int col, int sRow){
         double[] res = new double[2];
         //res[0] - row, res[1] - elem
         for (int i = sRow; i < row; i++)
@@ -822,7 +727,7 @@ public class Matrix {
         return nf.format(matr[row][col]);
     }
 
-    private double[][]copy(Matrix X){
+    protected static double[][]copy(Matrix X){
         double[][] matrCopy = new double [X.row][X.col];
         for(int i=0; i<X.row;i++)
             for(int j=0;j<X.col;j++)

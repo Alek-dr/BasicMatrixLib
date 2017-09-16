@@ -1,4 +1,4 @@
-package matrix;
+package MatrixLib;
 
 /**
  * Created by Barmin on 31.12.2016.
